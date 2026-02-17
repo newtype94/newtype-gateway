@@ -1,0 +1,45 @@
+{
+  "name": "llm-gateway",
+  "version": "1.0.0",
+  "description": "Local LLM Gateway with OAuth authentication and intelligent routing",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest --run --coverage",
+    "lint": "tsc --noEmit",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
+  },
+  "keywords": [
+    "llm",
+    "gateway",
+    "oauth",
+    "proxy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "chokidar": "^3.5.3",
+    "commander": "^11.1.0",
+    "express": "^4.18.2",
+    "js-yaml": "^4.1.0",
+    "pino": "^8.16.0",
+    "pino-pretty": "^10.2.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.10.0",
+    "@types/supertest": "^6.0.3",
+    "fast-check": "^3.15.0",
+    "supertest": "^7.2.2",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}

@@ -1,0 +1,43 @@
+gateway:
+  host: "127.0.0.1"
+  port: 8080
+
+auth:
+  tokenStorePath: "./tokens.json"
+  watchFiles:
+    - "~/.config/some-tool/tokens.json"
+
+modelAliases:
+  - alias: "my-best-model"
+    providers:
+      - provider: "openai"
+        model: "gpt-4"
+        priority: 1
+      - provider: "gemini"
+        model: "gemini-pro"
+        priority: 2
+
+rateLimits:
+  - provider: "openai"
+    requestsPerMinute: 10
+    maxQueueSize: 50
+  - provider: "gemini"
+    requestsPerMinute: 15
+    maxQueueSize: 50
+
+providers:
+  openai:
+    enabled: true
+    clientId: "your-client-id"
+    clientSecret: "your-client-secret"
+    authEndpoint: "https://auth.openai.com/authorize"
+    tokenEndpoint: "https://auth.openai.com/token"
+    apiEndpoint: "https://api.openai.com/v1"
+  
+  gemini:
+    enabled: true
+    clientId: "your-client-id"
+    clientSecret: "your-client-secret"
+    authEndpoint: "https://accounts.google.com/o/oauth2/v2/auth"
+    tokenEndpoint: "https://oauth2.googleapis.com/token"
+    apiEndpoint: "https://generativelanguage.googleapis.com/v1"

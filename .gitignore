@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Test artifacts
+tests/.test-data/
+coverage/
+
+# Token and auth files (may contain secrets)
+tokens.json
+*.token.json
+
+# Configuration with secrets
+config.yaml
+config.local.yaml
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OMC state
+.omc/
