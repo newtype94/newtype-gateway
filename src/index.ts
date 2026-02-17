@@ -12,8 +12,10 @@ import { ResponseTransformer } from './transformer/response-transformer.js';
 import { RequestHandler } from './handler/request-handler.js';
 import { GatewayProxy } from './server/gateway-proxy.js';
 import type { Configuration } from './types/index.js';
+import { UsageTracker } from './dashboard/usage-tracker.js';
 
 export async function startGateway(configPath: string): Promise<{ gateway: GatewayProxy; cleanup: () => Promise<void> }> {
+  const startTime = Date.now();
   // 1. Load configuration
   const config = loadConfig(configPath);
   logger.info({ host: config.gateway.host, port: config.gateway.port }, 'Configuration loaded');
@@ -53,11 +55,20 @@ export async function startGateway(configPath: string): Promise<{ gateway: Gatew
   // 7. Initialize transformer
   const transformer = new ResponseTransformer();
 
+  // 7.5. Initialize usage tracker
+  const usageTracker = new UsageTracker();
+
   // 8. Initialize request handler
-  const requestHandler = new RequestHandler(router, rateLimiter, providers, transformer, authManager);
+  const requestHandler = new RequestHandler(router, rateLimiter, providers, transformer, authManager, 3, usageTracker);
 
   // 9. Initialize and start gateway
-  const gateway = new GatewayProxy(requestHandler, config);
+  const gateway = new GatewayProxy(requestHandler, config, {
+    usageTracker,
+    tokenStore,
+    rateLimiter,
+    authManager,
+    startTime,
+  });
   await gateway.start();
 
   // Cleanup function

@@ -12,7 +12,9 @@
       "mcp__plugin_oh-my-claudecode_t__state_list_active",
       "mcp__plugin_oh-my-claudecode_t__state_clear",
       "mcp__plugin_oh-my-claudecode_t__state_get_status",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(wc:*)",
+      "mcp__plugin_oh-my-claudecode_t__state_write"
     ]
   }
 }

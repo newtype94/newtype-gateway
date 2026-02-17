@@ -10,6 +10,7 @@ import type {
   ProviderError,
 } from '../types/index.js';
 import logger from '../config/logger.js';
+import type { UsageTracker } from '../dashboard/usage-tracker.js';
 
 export class RequestHandler {
   private router: Router;
@@ -18,6 +19,7 @@ export class RequestHandler {
   private transformer: ResponseTransformer;
   private authManager: AuthManager;
   private maxRetries: number;
+  private usageTracker?: UsageTracker;
 
   constructor(
     router: Router,
@@ -25,7 +27,8 @@ export class RequestHandler {
     providers: Map<string, BaseProvider>,
     transformer: ResponseTransformer,
     authManager: AuthManager,
-    maxRetries: number = 3
+    maxRetries: number = 3,
+    usageTracker?: UsageTracker
   ) {
     this.router = router;
     this.rateLimiter = rateLimiter;
@@ -33,6 +36,7 @@ export class RequestHandler {
     this.transformer = transformer;
     this.authManager = authManager;
     this.maxRetries = maxRetries;
+    this.usageTracker = usageTracker;
   }
 
   /**
@@ -116,7 +120,10 @@ export class RequestHandler {
 
         const response = await provider.chatCompletion(providerRequest);
 
-        // 6. Transform to OpenAI format
+        // 6. Track usage (before transform to preserve camelCase)
+        this.usageTracker?.recordUsage(selected.provider, selected.model, response.usage);
+
+        // 7. Transform to OpenAI format
         return this.transformer.toOpenAIResponse(response, request.model);
       } catch (error: unknown) {
         const providerError = this.normalizeToProviderError(error, selected.provider);

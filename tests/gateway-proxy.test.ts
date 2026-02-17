@@ -274,7 +274,7 @@ describe('GatewayProxy', () => {
       fc.asyncProperty(
         fc.stringMatching(/^\/[a-z]{3,10}(\/[a-z]{3,10})?$/),
         async (path) => {
-          if (['/health', '/v1/models', '/v1/chat'].some(known => path.startsWith(known))) return;
+          if (['/health', '/v1/models', '/v1/chat', '/dashboard', '/api'].some(known => path.startsWith(known))) return;
           const res = await request(gateway.getApp()).get(path);
           expect(res.status).toBe(404);
           expect(res.body.error).toBeDefined();

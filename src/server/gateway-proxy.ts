@@ -5,16 +5,32 @@ import type { Configuration } from '../types/index.js';
 import type { ProviderError, OpenAIError } from '../types/index.js';
 import logger from '../config/logger.js';
 import { randomUUID } from 'crypto';
+import { UsageTracker } from '../dashboard/usage-tracker.js';
+import { createDashboardRoutes } from '../dashboard/dashboard-routes.js';
+import { getDashboardHTML } from '../dashboard/dashboard-page.js';
+import type { TokenStore } from '../types/index.js';
+import type { AuthManager } from '../auth/auth-manager.js';
+import type { RateLimiter } from '../rate-limiter/rate-limiter.js';
+
+interface DashboardDepsParam {
+  usageTracker: UsageTracker;
+  tokenStore: TokenStore;
+  rateLimiter: RateLimiter;
+  authManager: AuthManager;
+  startTime: number;
+}
 
 export class GatewayProxy {
   private app: express.Application;
   private server: Server | null = null;
   private requestHandler: RequestHandler;
   private config: Configuration;
+  private dashboardDeps?: DashboardDepsParam;
 
-  constructor(requestHandler: RequestHandler, config: Configuration) {
+  constructor(requestHandler: RequestHandler, config: Configuration, dashboardDeps?: DashboardDepsParam) {
     this.requestHandler = requestHandler;
     this.config = config;
+    this.dashboardDeps = dashboardDeps;
     this.app = express();
     this.setupMiddleware();
     this.setupRoutes();
@@ -43,6 +59,24 @@ export class GatewayProxy {
 
     // GET /v1/models
     this.app.get('/v1/models', this.handleListModels.bind(this));
+
+    // Dashboard routes (only when dashboardDeps is provided)
+    if (this.dashboardDeps) {
+      this.app.get('/dashboard', (_req: Request, res: Response) => {
+        res.setHeader('Content-Type', 'text/html');
+        res.send(getDashboardHTML());
+      });
+
+      const dashboardRouter = createDashboardRoutes({
+        config: this.config,
+        tokenStore: this.dashboardDeps.tokenStore,
+        rateLimiter: this.dashboardDeps.rateLimiter,
+        usageTracker: this.dashboardDeps.usageTracker,
+        authManager: this.dashboardDeps.authManager,
+        startTime: this.dashboardDeps.startTime,
+      });
+      this.app.use('/api/dashboard', dashboardRouter);
+    }
 
     // 404 handler
     this.app.use((_req: Request, res: Response) => {
